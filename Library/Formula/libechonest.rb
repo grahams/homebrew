@@ -1,16 +1,18 @@
 require 'formula'
 
 class Libechonest < Formula
-  url 'http://pwsp.cleinias.com/libechonest-1.1.5.tar.bz2'
   homepage 'https://projects.kde.org/projects/playground/libs/libechonest'
-  md5 'dfee05ea5dd58b320fce015bf5cb32e5'
+  url 'http://files.lfranchi.com/libechonest-2.1.0.tar.bz2'
+  sha1 '77b06cfb96675c4795902c68a802b71a33a0b48f'
 
-  depends_on 'cmake'
+  depends_on 'cmake' => :build
   depends_on 'qt'
   depends_on 'qjson'
 
+  conflicts_with 'doxygen', :because => "cmake fails to configure build."
+
   def install
-    system "cmake . #{std_cmake_parameters}"
+    system "cmake", ".", *std_cmake_args
     system "make install"
   end
 end

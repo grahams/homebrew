@@ -1,27 +1,106 @@
 require 'formula'
 
 class Fish < Formula
-  url 'http://downloads.sourceforge.net/project/fish/fish/1.23.1/fish-1.23.1.tar.bz2'
-  homepage 'http://fishshell.org/'
-  md5 'ead6b7c6cdb21f35a3d4aa1d5fa596f1'
+  homepage 'http://fishshell.com'
+  url 'http://fishshell.com/files/2.0.0/fish-2.0.0.tar.gz'
+  sha1 '2d28553e2ff975f8e5fed6b266f7a940493b6636'
 
-  depends_on 'readline'
-  skip_clean 'share/doc'
+  head do
+    url 'https://github.com/fish-shell/fish-shell.git'
 
-  def patches
-    # Reduces the timeout in select_try() from 5s to 10ms.
-    # The old timeout would cause fish to frequently freeze for a 5
-    # second period.
-    "http://gitorious.org/fish-shell/fish-shell/commit/6b8e7b16f6d4e11e168e3ce2effe2d8f0a53b184.patch?format=diff"
+    # Indeed, the head build always builds documentation
+    depends_on 'doxygen' => :build
   end
 
+  depends_on :autoconf
+
+  skip_clean 'share/doc'
+
+  # Don't search extra folders for libiconv
+  def patches; DATA; end unless build.head?
+
   def install
-    system "./configure", "--prefix=#{prefix}", "--without-xsel"
+    system "autoconf"
+    system "./configure", "--prefix=#{prefix}"
     system "make install"
   end
 
-  def caveats
-    "You will need to add #{HOMEBREW_PREFIX}/bin/fish to /etc/shells\n"+
-    "Run `chsh -s #{HOMEBREW_PREFIX}/bin/fish' to make fish your default shell."
+  test do
+    system "fish", "-c", "echo"
+  end
+
+  def caveats; <<-EOS.undent
+    You will need to add:
+      #{HOMEBREW_PREFIX}/bin/fish
+    to /etc/shells. Run:
+      chsh -s #{HOMEBREW_PREFIX}/bin/fish
+    to make fish your default shell.
+    EOS
   end
 end
+
+__END__
+diff --git a/configure.ac b/configure.ac
+index 34f25e1..b9afa51 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -98,45 +98,6 @@ AC_PROG_INSTALL
+ 
+ echo "CXXFLAGS: $CXXFLAGS"
+ 
+-#
+-# Detect directories which may contain additional headers, libraries
+-# and commands. This needs to be done early - before Autoconf starts
+-# to mess with CFLAGS and all the other environemnt variables.
+-#
+-# This mostly helps OS X users, since fink usually installs out of
+-# tree and doesn't update CFLAGS.
+-#
+-# It also helps FreeBSD which puts libiconv in /usr/local/lib
+-
+-for i in /usr/pkg /sw /opt /opt/local /usr/local; do
+-
+-  AC_MSG_CHECKING([for $i/include include directory])
+-  if test -d $i/include; then
+-    AC_MSG_RESULT(yes)
+-    CXXFLAGS="$CXXFLAGS -I$i/include/"
+-    CFLAGS="$CFLAGS -I$i/include/"
+-  else
+-  AC_MSG_RESULT(no)
+-  fi
+-
+-  AC_MSG_CHECKING([for $i/lib library directory])
+-  if test -d $i/lib; then
+-    AC_MSG_RESULT(yes)
+-    LDFLAGS="$LDFLAGS -L$i/lib/ -Wl,-rpath,$i/lib/"
+-  else
+-    AC_MSG_RESULT(no)
+-  fi
+-
+-  AC_MSG_CHECKING([for $i/bin command directory])
+-  if test -d $i/bin; then
+-    AC_MSG_RESULT(yes)
+-    optbindirs="$optbindirs $i/bin"
+-  else
+-    AC_MSG_RESULT(no)
+-  fi
+-
+-done
+-
+ 
+ #
+ # Tell autoconf to create config.h header
+diff --git a/reader.cpp b/reader.cpp
+index f7f92e5..5f3758b 100644
+--- a/reader.cpp
++++ b/reader.cpp
+@@ -3035,6 +3035,9 @@ const wchar_t *reader_readline(void)
+
+                         /* Since we just inserted a completion, don't immediately do a new autosugg
+                         data->suppress_autosuggestion = true;
++
++                        /* Trigger repaint (see #765) */
++                        reader_repaint_if_needed();
+                     }
+                 }
+                 else

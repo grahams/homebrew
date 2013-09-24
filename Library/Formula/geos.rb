@@ -1,17 +1,16 @@
 require 'formula'
 
 class Geos < Formula
-  url 'http://download.osgeo.org/geos/geos-3.2.2.tar.bz2'
-  homepage 'http://trac.osgeo.org/geos/'
-  md5 'c5d264acac22fe7720f85dadc1fc17c6'
+  homepage 'http://trac.osgeo.org/geos'
+  url 'http://download.osgeo.org/geos/geos-3.4.2.tar.bz2'
+  sha1 'b8aceab04dd09f4113864f2d12015231bb318e9a'
 
-  def skip_clean? path
-    path.extname == '.la'
-  end
+  option :universal
 
   def install
-    ENV.O3
-    system "./configure", "--prefix=#{prefix}", "--disable-debug", "--disable-dependency-tracking"
+    ENV.universal_binary if build.universal?
+
+    system "./configure", "--disable-dependency-tracking", "--prefix=#{prefix}"
     system "make install"
   end
 end

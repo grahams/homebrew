@@ -1,15 +1,29 @@
 require 'formula'
 
 class Aria2 < Formula
-  url 'http://downloads.sourceforge.net/project/aria2/stable/aria2-1.11.1/aria2-1.11.1.tar.bz2'
-  md5 'da785645a6d92450b0a54f384202ba6b'
   homepage 'http://aria2.sourceforge.net/'
+  url 'http://downloads.sourceforge.net/project/aria2/stable/aria2-1.18.0/aria2-1.18.0.tar.bz2'
+  sha1 '1512133f328b825e3ce7d1d85643c08febb21978'
 
-  fails_with_llvm "1.8.2 didn't work w/ LLVM"
+  option 'with-appletls', 'Build with Secure Transport for SSL support'
+
+  depends_on 'pkg-config' => :build
+  depends_on 'gnutls' unless build.with? 'appletls'
+  depends_on 'curl-ca-bundle' => :recommended
+  depends_on :macos => :lion # Needs a c++11 compiler
 
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}"
+    args = %W[--disable-dependency-tracking --prefix=#{prefix}]
+    args << "--with-ca-bundle=#{HOMEBREW_PREFIX}/share/ca-bundle.crt" if build.with? 'curl-ca-bundle'
+    if build.with? 'appletls'
+      args << "--with-appletls"
+    else
+      args << "--without-appletls"
+    end
+
+    system "./configure", *args
     system "make install"
+
+    bash_completion.install "doc/bash_completion/aria2c"
   end
 end

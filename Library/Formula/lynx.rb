@@ -1,11 +1,9 @@
 require 'formula'
 
 class Lynx < Formula
-  # Official site is down
-  # url 'http://lynx.isc.org/release/lynx2.8.7.tar.bz2'
-  url 'http://lynxmirror.3gforphones.com/lynx2.8.7/lynx2.8.7.tar.bz2'
   homepage 'http://lynx.isc.org/release/'
-  md5 'cb936aef812e4e463ab86cbbe14d4db9'
+  url 'http://lynx.isc.org/release/lynx2.8.7.tar.bz2'
+  sha1 'a34978f7f83cd46bd857cb957faa5a9120458afa'
 
   def install
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
@@ -14,7 +12,7 @@ class Lynx < Formula
                           "--disable-echo",
                           "--with-zlib",
                           "--with-bzlib",
-                          "--with-ssl",
+                          "--with-ssl=/usr",
                           "--enable-ipv6"
     system "make install"
   end

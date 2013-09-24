@@ -1,9 +1,9 @@
 require 'formula'
 
 class Afflib < Formula
-  url 'http://afflib.org/downloads/afflib-3.6.11.tar.gz'
   homepage 'http://afflib.org'
-  md5 'd2df61d11e249fc8be73fd7598650d61'
+  url 'https://github.com/downloads/simsong/AFFLIBv3/afflib-3.7.1.tar.gz'
+  sha1 'fb35a2383a48b49f68e25ca97d67ee02342826ba'
 
   depends_on 'expat' => :optional
 

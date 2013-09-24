@@ -1,11 +1,11 @@
 require 'formula'
 
 class Resty < Formula
-  url 'https://github.com/micha/resty/tarball/1.8'
   homepage 'https://github.com/micha/resty'
-  md5 'c99beeb500d616e6710beb05fad08285'
+  url 'https://github.com/micha/resty/archive/2.2.tar.gz'
+  sha1 'a4dc1b55cee034e72fcf8d58831c734e19f5869a'
 
-  head 'git://github.com/micha/resty.git'
+  head 'https://github.com/micha/resty.git'
 
   # Don't take +x off these files
   skip_clean 'bin'
